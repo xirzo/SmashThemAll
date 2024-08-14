@@ -14,7 +14,6 @@ namespace STA.Domain.Movement
         {
             _position = startPosition;
 
-            // ! Should be replaced with ai choose of direction 
             _direction = new Vector3(1, 0, 0);
         }
 

@@ -1,4 +1,3 @@
-
 using System.Numerics;
 
 namespace STA.Domain.Movement
@@ -7,10 +6,15 @@ namespace STA.Domain.Movement
     {
         public Vector3 Position => _position;
         private Vector3 _position;
+        private IMovementInput _input;
+        public HandMovement(IMovementInput input)
+        {
+            _input = input;
+        }
 
         public void Move(float deltaTime)
         {
-            throw new System.NotImplementedException();
+            _position = _input.GetMovement();
         }
     }
 }

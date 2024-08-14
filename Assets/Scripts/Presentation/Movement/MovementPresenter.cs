@@ -1,5 +1,6 @@
 using System;
 using STA.Domain.Movement;
+using STA.Presentation.Inputs;
 using STA.View.Movement;
 using UnityEngine;
 using Vector3 = System.Numerics.Vector3;
@@ -17,6 +18,8 @@ namespace STA.Presentation.Movement
         [SerializeField] private MovementType _movementType;
         [Space]
         [SerializeField] private MovementView _movementViewPrefab;
+        [Space]
+        [SerializeField] private PlayerInput _playerInput;
         private IMovement _movement;
         private MovementView _movementView;
 
@@ -25,7 +28,7 @@ namespace STA.Presentation.Movement
             switch (_movementType)
             {
                 case MovementType.Hand:
-                    _movement = new HandMovement();
+                    _movement = new HandMovement(_playerInput);
                     break;
 
                 case MovementType.Bug:
