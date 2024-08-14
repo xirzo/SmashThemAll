@@ -2,6 +2,7 @@ using System;
 using STA.Domain.Movement;
 using STA.View.Movement;
 using UnityEngine;
+using Vector3 = System.Numerics.Vector3;
 
 namespace STA.Presentation.Movement
 {
@@ -28,15 +29,16 @@ namespace STA.Presentation.Movement
                     break;
 
                 case MovementType.Bug:
-                    _movement = new BugMovement();
+                    _movement = new BugMovement(new Vector3(0, 0, 0));
                     break;
+
                 default:
-                    _movement = new BugMovement();
+                    _movement = new BugMovement(new Vector3(0, 0, 0));
                     break;
             }
         }
 
-        private void InstantiateViewAndInitialize()
+        private void InstantiateAndInitializeView()
         {
             if (_movement == null)
                 throw new NullReferenceException("Cannot initialize movement view without movement!");
@@ -48,7 +50,7 @@ namespace STA.Presentation.Movement
         private void Awake()
         {
             SetMovement();
-            InstantiateViewAndInitialize();
+            InstantiateAndInitializeView();
         }
     }
 }
