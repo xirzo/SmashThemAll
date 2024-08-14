@@ -1,59 +1,28 @@
-using System;
 using STA.Domain.Movement;
-using STA.Presentation.Inputs;
 using STA.View.Movement;
-using UnityEngine;
-using Vector3 = System.Numerics.Vector3;
 
 namespace STA.Presentation.Movement
 {
-    public class MovementPresenter : MonoBehaviour
+    public class MovementPresenter
     {
-        private enum MovementType
-        {
-            Hand,
-            Bug
-        }
-
-        [SerializeField] private MovementType _movementType;
-        [Space]
-        [SerializeField] private MovementView _movementViewPrefab;
-        [Space]
-        [SerializeField] private PlayerInput _playerInput;
-        private IMovement _movement;
         private MovementView _movementView;
+        private IMovement _movement;
 
-        private void SetMovement()
+        public MovementPresenter(MovementView movementView, IMovement movement)
         {
-            switch (_movementType)
-            {
-                case MovementType.Hand:
-                    _movement = new HandMovement(_playerInput);
-                    break;
-
-                case MovementType.Bug:
-                    _movement = new BugMovement(new Vector3(0, 0, 0));
-                    break;
-
-                default:
-                    _movement = new BugMovement(new Vector3(0, 0, 0));
-                    break;
-            }
+            _movementView = movementView;
+            _movement = movement;
         }
 
-        private void InstantiateAndInitializeView()
+        private void Move(float deltaTime)
         {
-            if (_movement == null)
-                throw new NullReferenceException("Cannot initialize movement view without movement!");
-
-            _movementView = Instantiate(_movementViewPrefab);
-            _movementView.Initialize(_movement);
+            _movement.Move(deltaTime);
+            _movementView.Move(_movement.Position);
         }
 
-        private void Awake()
+        public void Update(float deltaTime)
         {
-            SetMovement();
-            InstantiateAndInitializeView();
+            Move(deltaTime);
         }
     }
 }
