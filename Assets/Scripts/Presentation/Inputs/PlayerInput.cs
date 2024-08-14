@@ -11,6 +11,11 @@ namespace STA.Presentation.Inputs
 
         private void Awake()
         {
+            if (FindObjectOfType<PlayerInput>() != this)
+            {
+                Destroy(this);
+            }
+
             _actions = new InputActions();
             _actions.Enable();
         }
