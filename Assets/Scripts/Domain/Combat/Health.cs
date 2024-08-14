@@ -1,8 +1,11 @@
+using System;
 
 namespace STA.Domain.Combat
 {
     public class Health
     {
+        public event Action<float> OnDamaged;
+        public event Action<float> OnHealed;
         public bool IsDead { get; private set; }
         public float Value { get; private set; }
         public float MaxValue { get; }
@@ -17,21 +20,22 @@ namespace STA.Domain.Combat
         public void Die()
         {
             IsDead = true;
-            Value = 0;
+            Damage(MaxValue);
         }
 
         public void Revive()
         {
             IsDead = false;
-            Value = MaxValue;
+            Heal(MaxValue);
         }
 
-        private void Add(float value)
+        private void Heal(float value)
         {
             Value += value;
+            OnHealed?.Invoke(Value);
         }
 
-        public void TryAdd(float value)
+        public void TryHeal(float value)
         {
             if (IsDead == true)
                 return;
@@ -42,16 +46,18 @@ namespace STA.Domain.Combat
                 return;
             }
 
-            Add(value);
+            Heal(value);
 
+            OnHealed?.Invoke(Value);
         }
 
-        private void Substract(float damage)
+        private void Damage(float damage)
         {
             Value -= damage;
+            OnDamaged?.Invoke(Value);
         }
 
-        public void TrySubstract(float damage)
+        public void TryDamage(float damage)
         {
             if (IsDead == true)
                 return;
@@ -62,7 +68,7 @@ namespace STA.Domain.Combat
                 return;
             }
 
-            Substract(damage);
+            Damage(damage);
         }
     }
 }
