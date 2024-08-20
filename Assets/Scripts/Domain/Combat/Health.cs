@@ -1,38 +1,39 @@
 using System;
+using UnityEngine;
 
 namespace STA.Domain.Combat
 {
-    public class Health
+    public class Health : MonoBehaviour
     {
         public event Action<float> OnDamaged;
         public event Action<float> OnHealed;
         public bool IsDead { get; private set; }
-        public float Value { get; private set; }
-        public float MaxValue { get; }
+        public float Value => _value;
+        public float MaxValue => _maxValue;
+        [SerializeField, Range(0, 100)] private float _value = 100f;
+        [SerializeField, Range(0, 100)] private float _maxValue = 100f;
 
-        public Health(float maxValue)
+        public void Awake()
         {
             IsDead = false;
-            Value = maxValue;
-            MaxValue = maxValue;
         }
 
         public void Die()
         {
             IsDead = true;
-            Damage(MaxValue);
+            Damage(_maxValue);
         }
 
         public void Revive()
         {
             IsDead = false;
-            Heal(MaxValue);
+            Heal(_maxValue);
         }
 
         private void Heal(float value)
         {
-            Value += value;
-            OnHealed?.Invoke(Value);
+            _value += value;
+            OnHealed?.Invoke(_value);
         }
 
         public void TryHeal(float value)
@@ -40,21 +41,21 @@ namespace STA.Domain.Combat
             if (IsDead == true)
                 return;
 
-            if (Value + value > MaxValue)
+            if (_value + value > _maxValue)
             {
-                Value = MaxValue;
+                _value = _maxValue;
                 return;
             }
 
             Heal(value);
 
-            OnHealed?.Invoke(Value);
+            OnHealed?.Invoke(_value);
         }
 
         private void Damage(float damage)
         {
-            Value -= damage;
-            OnDamaged?.Invoke(Value);
+            _value -= damage;
+            OnDamaged?.Invoke(_value);
         }
 
         public void TryDamage(float damage)
@@ -62,7 +63,7 @@ namespace STA.Domain.Combat
             if (IsDead == true)
                 return;
 
-            if (Value - damage <= damage)
+            if (_value - damage <= damage)
             {
                 Die();
                 return;

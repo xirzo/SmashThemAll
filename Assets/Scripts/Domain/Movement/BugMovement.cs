@@ -1,31 +1,76 @@
-using System.Numerics;
+using System.Collections;
+using UnityEngine;
+using Random = System.Random;
 
 namespace STA.Domain.Movement
 {
-    public class BugMovement : IMovement
+    public class BugMovement : MonoBehaviour
     {
-        public Vector3 Position => _position;
-        private Vector3 _position;
-        private Vector3 _direction;
-        private Vector3 _velocity;
-        private float _speed = 5f;
+        [SerializeField, Min(0)] private float _movementSpeed = 5f;
+        [SerializeField, Min(0)] private float _movementSpeedMultiplier = 1f;
+        [Space]
+        [SerializeField, Min(0)] private float _attackAlertDistance = 5f;
+        [SerializeField, Min(0)] private float _runningTime = 1f;
+        private Vector2 _movementDirection;
+        private bool _isRunning;
+        private float _speed;
+        private Random _random = new Random();
 
-        public BugMovement(Vector3 startPosition)
+        private void OnEnable()
         {
-            _position = startPosition;
-
-            _direction = new Vector3(1, 0, 0);
+            _speed = _movementSpeed;
+            SetRandomDirection();
         }
 
-        private void CalculateVelocity(float deltaTime)
+        private void Update()
         {
-            _velocity = Vector3.Normalize(_direction) * _speed * deltaTime;
+            Move();
         }
 
-        public void Move(float deltaTime)
+        private void Move()
         {
-            CalculateVelocity(deltaTime);
-            _position += _velocity;
+            transform.Translate(_movementDirection * _speed * Time.deltaTime);
+        }
+
+        private void ChangeDirectionFromPosition(Vector2 attackPosition)
+        {
+            if (Vector3.Distance(transform.position, (Vector3)attackPosition) <= _attackAlertDistance)
+            {
+                if (_isRunning == true)
+                    return;
+
+                _isRunning = true;
+                StartCoroutine(ChangeSpeedForSeconds());
+            }
+        }
+
+        private void SetRandomDirection()
+        {
+            _movementDirection = new Vector2((float)_random.NextDouble(-1.0, 1.0), (float)_random.NextDouble(-1.0, 1.0));
+        }
+
+        private void ChangeDirection(Vector3 objectNormal)
+        {
+            _movementDirection = Vector2.Reflect(_movementDirection, objectNormal);
+        }
+
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            ChangeDirection(collision.contacts[0].normal);
+        }
+
+        private IEnumerator ChangeSpeedForSeconds()
+        {
+            _speed *= _movementSpeedMultiplier;
+            yield return new WaitForSeconds(_runningTime);
+            _speed = _movementSpeed;
+            _isRunning = false;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, _attackAlertDistance);
         }
     }
 }
